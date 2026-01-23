@@ -1,331 +1,224 @@
 # deasy
 
-**Dead Easy YouTube Downloader**
+**Download Easy - A Simple YouTube Downloader**
 
-A simple, intuitive wrapper around yt-dlp that makes downloading videos and audio as easy as it should be.
-
----
-
-## Table of Contents
-
-- [Why deasy Exists](#why-deasy-exists)
-- [Philosophy](#philosophy)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Usage Guide](#usage-guide)
-- [Examples](#examples)
-- [Technical Details](#technical-details)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
+A straightforward wrapper around yt-dlp that makes downloading videos and audio effortless.
 
 ---
 
-## Why deasy Exists
+## Overview
 
-yt-dlp is powerful but complex. A simple task like "download this video as MP4" requires remembering format strings, merge options, and various flags. Most users just want to download a video or extract audio without becoming command-line experts.
+**What is deasy?**
 
-deasy bridges this gap by providing a natural language interface to yt-dlp's most common use cases.
+deasy is a command-line tool that simplifies YouTube downloads. Instead of memorizing complex yt-dlp commands, you simply type what you want in plain language.
 
----
+**Why deasy?**
 
-## Philosophy
+yt-dlp is powerful but has a steep learning curve. Tasks like "download this video as MP4" or "extract audio as MP3" require knowledge of format strings, flags, and options. deasy eliminates this complexity while preserving yt-dlp's power.
 
-deasy follows three core principles:
+**Core Philosophy**
 
-**1. Natural Language Over Flags**
-- Instead of `-f 'bestvideo[height<=720]+bestaudio'`, just type `720`
-- Instead of `-x --audio-format mp3`, just type `audio`
-- No memorization required
-
-**2. Smart Defaults**
-- Videos download as MP4 with best quality
-- Audio downloads as high-quality MP3
-- Playlists are automatically organized into folders
-- Single videos are extracted from playlists by default
-
-**3. Progressive Complexity**
-- Basic usage is dead simple: `deasy <url>`
-- Add options naturally: `deasy audio 720 <url>`
-- Order doesn't matter: `deasy 720 audio <url>` works too
+- Natural language over technical flags
+- Smart defaults for common tasks
+- Minimal learning curve
+- Order-independent syntax
 
 ---
 
 ## Installation
 
-### Prerequisites
+### Quick Install
 
-deasy requires yt-dlp to be installed on your system.
+Download both files and run the installer:
 
 ```bash
-# Install yt-dlp
+chmod +x install.sh
+./install.sh
+```
+
+The installer handles everything automatically:
+- Checks and installs dependencies (yt-dlp, ffmpeg)
+- Installs deasy to your system
+- Configures your shell PATH
+- Verifies the installation
+
+For help with the installer:
+```bash
+./install.sh --help
+```
+
+### Manual Install
+
+**Requirements:**
+- yt-dlp (required)
+- ffmpeg (recommended for format conversion)
+
+**Install dependencies:**
+```bash
+# Using pip
 pip install yt-dlp
 
-# Or via your package manager
-# Ubuntu/Debian
-sudo apt install yt-dlp
-
-# macOS
-brew install yt-dlp
-
-# Arch Linux
-sudo pacman -S yt-dlp
+# Or your package manager
+sudo apt install yt-dlp ffmpeg    # Ubuntu/Debian
+brew install yt-dlp ffmpeg        # macOS
+sudo pacman -S yt-dlp ffmpeg      # Arch Linux
 ```
 
-### Installing deasy
-
-**Method 1: Add to Shell Configuration (Recommended)**
-
-Add the deasy function to your shell configuration file:
-
+**Install deasy:**
 ```bash
-# For Bash
-echo 'source /path/to/deasy.sh' >> ~/.bashrc
-source ~/.bashrc
-
-# For Zsh
-echo 'source /path/to/deasy.sh' >> ~/.zshrc
-source ~/.zshrc
-```
-
-**Method 2: System-wide Installation**
-
-```bash
-# Copy to a directory in your PATH
-sudo cp deasy.sh /usr/local/bin/deasy
-sudo chmod +x /usr/local/bin/deasy
-```
-
-**Method 3: User-local Installation**
-
-```bash
-# Copy to user bin directory
 mkdir -p ~/.local/bin
 cp deasy.sh ~/.local/bin/deasy
 chmod +x ~/.local/bin/deasy
-
-# Add to PATH if not already
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
 ---
 
-## Quick Start
+## Basic Usage
 
-The most basic usage is simply pasting a URL:
-
-```bash
-deasy https://youtube.com/watch?v=dQw4w9WgXcQ
-```
-
-This downloads the video in best available quality as MP4.
-
-For audio extraction:
+The simplest way to use deasy:
 
 ```bash
-deasy audio https://youtube.com/watch?v=dQw4w9WgXcQ
+deasy <url>
 ```
 
-For playlists:
-
-```bash
-deasy playlist https://youtube.com/playlist?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf
-```
+This downloads the video in best quality as MP4.
 
 ---
 
-## Usage Guide
+## Options
 
-### Basic Syntax
+### Download Type
 
-```
-deasy [what] [quality] [format] <url>
-```
+| Keyword | Effect |
+|---------|--------|
+| `video` | Download video (default) |
+| `audio` | Extract audio only |
+| `playlist` | Download entire playlist |
 
-All options (`what`, `quality`, and `format`) are optional and can appear in any order. The only required element is the URL.
+### Quality
 
-### Download Types (what)
+| Keyword | Resolution |
+|---------|-----------|
+| `best` | Highest available (default) |
+| `1080` | 1080p |
+| `720` | 720p |
+| `480` | 480p |
+| `360` | 360p |
 
-| Keyword | Aliases | Description |
-|---------|---------|-------------|
-| `video` | `vid` | Download video (default) |
-| `audio` | `mp3`, `music`, `song` | Extract audio only as MP3 |
-| `playlist` | `list`, `pl` | Download entire playlist |
-
-### Quality Options
-
-| Keyword | Aliases | Description |
-|---------|---------|-------------|
-| `best` | `highest`, `max` | Best available quality (default) |
-| `1080` | `1080p`, `hd` | 1080p resolution |
-| `720` | `720p` | 720p resolution |
-| `480` | `480p` | 480p resolution |
-| `360` | `360p` | 360p resolution |
-
-### Video Format Options
+### Video Formats
 
 | Format | Description |
 |--------|-------------|
-| `mp4` | MP4 container (default, best compatibility) |
-| `mkv` | Matroska container (supports more codecs) |
-| `webm` | WebM container (web-optimized) |
-| `avi` | AVI container (legacy support) |
+| `mp4` | Best compatibility (default) |
+| `mkv` | More codec support |
+| `webm` | Web-optimized |
+| `avi` | Legacy support |
 
-### Audio Format Options
+### Audio Formats
 
 | Format | Description |
 |--------|-------------|
-| `mp3` | MP3 format (default, universal compatibility) |
-| `m4a` | M4A/AAC format (better quality than MP3) |
-| `flac` | FLAC format (lossless, large files) |
-| `opus` | Opus format (efficient, high quality) |
-| `wav` | WAV format (uncompressed, very large) |
-
-### Smart Features
-
-**Playlist Detection**
-When you provide a playlist URL without specifying the `playlist` keyword, deasy will ask if you want to download the entire playlist or just the current video.
-
-**Automatic Organization**
-Playlists are automatically downloaded into folders named after the playlist, with files numbered according to their playlist index:
-
-```
-My Favorite Playlist/
-  01 - First Video.mp4
-  02 - Second Video.mp4
-  03 - Third Video.mp4
-```
-
-**Format Optimization**
-- Videos are automatically merged into MP4 format
-- Audio is extracted as high-quality MP3 (320kbps equivalent)
-- Best available codecs are selected automatically
+| `mp3` | Universal compatibility (default) |
+| `m4a` | Better quality than MP3 |
+| `flac` | Lossless quality |
+| `opus` | High efficiency |
+| `wav` | Uncompressed |
 
 ---
 
 ## Examples
 
-### Single Video Downloads
+### Video Downloads
 
-Download best quality video:
 ```bash
-deasy https://youtube.com/watch?v=..
-```
+# Best quality video
+deasy https://youtube.com/watch?v=dQw4w9WgXcQ
 
-Download 720p video:
-```bash
-deasy 720 https://youtube.com/watch?v=..
-deasy video 720 https://youtube.com/watch?v=..
-```
+# Specific quality
+deasy 720 https://youtube.com/watch?v=dQw4w9WgXcQ
 
-Download 1080p video:
-```bash
-deasy 1080 https://youtube.com/watch?v=..
-```
+# Different format
+deasy mkv https://youtube.com/watch?v=dQw4w9WgXcQ
 
-Download as MKV format:
-```bash
-deasy mkv https://youtube.com/watch?v=..
-deasy 720 mkv https://youtube.com/watch?v=..
-```
-
-Download as WebM format:
-```bash
-deasy webm https://youtube.com/watch?v=..
+# Quality and format
+deasy 1080 mkv https://youtube.com/watch?v=dQw4w9WgXcQ
 ```
 
 ### Audio Downloads
 
-Extract audio as MP3:
 ```bash
-deasy audio https://youtube.com/watch?v=..
-deasy music https://youtube.com/watch?v=..
-```
+# Extract as MP3
+deasy audio https://youtube.com/watch?v=dQw4w9WgXcQ
 
-Extract audio as FLAC (lossless):
-```bash
-deasy audio flac https://youtube.com/watch?v=..
-```
+# Extract as FLAC
+deasy audio flac https://youtube.com/watch?v=dQw4w9WgXcQ
 
-Extract audio as M4A/AAC:
-```bash
-deasy audio m4a https://youtube.com/watch?v=..
-```
-
-Extract audio as Opus:
-```bash
-deasy audio opus https://youtube.com/watch?v=..
+# Extract as high-quality M4A
+deasy audio m4a https://youtube.com/watch?v=dQw4w9WgXcQ
 ```
 
 ### Playlist Downloads
 
-Download entire playlist:
 ```bash
-deasy playlist https://youtube.com/playlist?list=..
-```
+# Download playlist
+deasy playlist https://youtube.com/playlist?list=PLxxx
 
-Download playlist as audio:
-```bash
-deasy playlist audio https://youtube.com/playlist?list=..
-deasy audio playlist https://youtube.com/playlist?list=..
-```
+# Playlist as audio
+deasy playlist audio https://youtube.com/playlist?list=PLxxx
 
-Download playlist as FLAC:
-```bash
-deasy playlist audio flac https://youtube.com/playlist?list=..
-```
+# Playlist with quality
+deasy playlist 720 https://youtube.com/playlist?list=PLxxx
 
-Download playlist in 720p as MKV:
-```bash
-deasy playlist 720 mkv https://youtube.com/playlist?list=..
+# Playlist audio as FLAC
+deasy playlist audio flac https://youtube.com/playlist?list=PLxxx
 ```
 
 ### Flexible Syntax
 
-All of these are equivalent:
-```bash
-deasy audio 720 flac https://youtube.com/watch?v=...
-deasy 720 audio flac https://youtube.com/watch?v=...
-deasy flac 720 audio https://youtube.com/watch?v=...
-deasy 720 flac audio https://youtube.com/watch?v=...
-```
+Options can appear in any order:
 
-Video format examples:
 ```bash
-deasy 1080 mkv https://youtube.com/watch?v=...
-deasy mkv 1080 https://youtube.com/watch?v=...
-deasy video 1080 mkv https://youtube.com/watch?v=...
+# All of these work identically
+deasy 720 mkv https://youtube.com/watch?v=...
+deasy mkv 720 https://youtube.com/watch?v=...
+deasy video 720 mkv https://youtube.com/watch?v=...
 ```
-
-Note: When conflicting options are given, the last one takes precedence.
 
 ---
 
-## Technical Details
+## How It Works
 
-### Output Formats
+### Smart Parsing
 
-**Video Downloads**
-- Container: MP4 (default), MKV, WebM, or AVI
-- Video codec: Best available (typically H.264/AVC or VP9)
-- Audio codec: Best available (typically AAC or Opus)
-- Quality: Selected resolution or best available
+deasy analyzes your command and determines what you want:
+- Recognizes quality keywords (720, 1080, etc.)
+- Detects format preferences (mp4, mkv, flac, etc.)
+- Identifies download type (video, audio, playlist)
+- Extracts the URL
 
-**Audio Downloads**
-- Format: MP3 (default), M4A/AAC, FLAC, Opus, or WAV
-- Quality: Highest available (equivalent to 320kbps for lossy formats)
-- Metadata: Preserved from source
+### Automatic Organization
 
-**Playlist Organization**
-- Folder: Named after playlist title
-- Files: `{index} - {title}.{ext}` format
-- Index: Zero-padded playlist position
+Playlists are organized into folders:
+```
+Playlist Name/
+  01 - First Video.mp4
+  02 - Second Video.mp4
+  03 - Third Video.mp4
+```
+
+### Smart Defaults
+
+- Videos: Best quality MP4 with best available codecs
+- Audio: High-quality MP3 (320kbps equivalent)
+- Single videos from playlist URLs (unless specified otherwise)
 
 ### yt-dlp Integration
 
-deasy constructs and executes yt-dlp commands based on your input:
+deasy constructs optimized yt-dlp commands:
 
-For video downloads:
+**Video example:**
 ```bash
 yt-dlp -f "bestvideo[height<=720]+bestaudio/best[height<=720]" \
        --merge-output-format mkv \
@@ -333,7 +226,7 @@ yt-dlp -f "bestvideo[height<=720]+bestaudio/best[height<=720]" \
        <url>
 ```
 
-For audio downloads:
+**Audio example:**
 ```bash
 yt-dlp -x \
        --audio-format flac \
@@ -342,137 +235,104 @@ yt-dlp -x \
        <url>
 ```
 
-For playlists:
-```bash
-yt-dlp -f "bestvideo+bestaudio/best" \
-       --merge-output-format mp4 \
-       --yes-playlist \
-       -o "%(playlist)s/%(playlist_index)s - %(title)s.%(ext)s" \
-       <url>
-```
-
-### Dependencies
-
-- **yt-dlp**: Required for all functionality
-- **ffmpeg**: Required for format conversion and merging (usually installed with yt-dlp)
-- **Bash**: Version 4.0 or higher
-
 ---
 
 ## Troubleshooting
 
-### Common Issues
+### yt-dlp not found
 
-**"yt-dlp is not installed"**
-
-Install yt-dlp using pip or your system package manager:
+Install yt-dlp:
 ```bash
 pip install yt-dlp
+# or
+sudo apt install yt-dlp
 ```
 
-**"No URL found"**
+### deasy command not found
 
-Ensure you're providing a valid URL starting with `http://` or `https://`:
+Add to your PATH or restart your terminal:
 ```bash
-# Correct
-deasy https://youtube.com/watch?v=...
-
-# Incorrect
-deasy youtube.com/watch?v=...
+export PATH="$HOME/.local/bin:$PATH"
+source ~/.bashrc
 ```
 
-**Download fails or hangs**
+### Format conversion fails
 
-This is usually a yt-dlp issue. Try updating yt-dlp:
+Install ffmpeg:
+```bash
+sudo apt install ffmpeg    # Ubuntu/Debian
+brew install ffmpeg        # macOS
+sudo pacman -S ffmpeg      # Arch Linux
+```
+
+### Download fails
+
+Update yt-dlp:
 ```bash
 pip install --upgrade yt-dlp
 ```
 
-**Videos download but audio is missing**
-
-Install or update ffmpeg:
-```bash
-# Ubuntu/Debian
-sudo apt install ffmpeg
-
-# macOS
-brew install ffmpeg
-
-# Arch Linux
-sudo pacman -S ffmpeg
-```
-
-**Permission denied when installing**
-
-For system-wide installation, use sudo:
-```bash
-sudo cp deasy.sh /usr/local/bin/deasy
-sudo chmod +x /usr/local/bin/deasy
-```
-
-Or install to user directory without sudo:
-```bash
-mkdir -p ~/.local/bin
-cp deasy.sh ~/.local/bin/deasy
-chmod +x ~/.local/bin/deasy
-```
-
-### Getting Help
-
-If you encounter an issue not covered here:
-
-1. Check yt-dlp's output for specific error messages
-2. Verify your yt-dlp installation: `yt-dlp --version`
-3. Test with yt-dlp directly to isolate the issue
-4. Check yt-dlp's documentation: https://github.com/yt-dlp/yt-dlp
-
 ---
 
-## Advanced Usage
+## Advanced Features
 
-While deasy is designed to be simple, you can still use yt-dlp directly for advanced features:
+### Playlist Detection
 
-**Rate limiting:**
+When you provide a playlist URL without the `playlist` keyword, deasy asks if you want the whole playlist or just the current video.
+
+### Custom Output Location
+
+Downloads go to your current directory by default. Change directory before running deasy:
 ```bash
-yt-dlp -r 500K <url>
+cd ~/Videos
+deasy https://youtube.com/watch?v=...
 ```
 
-**Custom output template:**
+### Using yt-dlp Directly
+
+For advanced features not covered by deasy, use yt-dlp directly:
 ```bash
+# Subtitles
+yt-dlp --write-subs --sub-lang en <url>
+
+# Rate limiting
+yt-dlp -r 500K <url>
+
+# Custom output template
 yt-dlp -o "%(uploader)s/%(title)s.%(ext)s" <url>
 ```
 
-**Subtitles:**
-```bash
-yt-dlp --write-subs --sub-lang en <url>
-```
-
-For these advanced cases, refer to yt-dlp's documentation or use yt-dlp directly.
+Refer to yt-dlp documentation for more options: https://github.com/yt-dlp/yt-dlp
 
 ---
 
-## Contributing
+## Uninstalling
 
-deasy is designed to be simple and maintainable. If you have suggestions for improvement:
+Using the installer:
+```bash
+./install.sh --uninstall
+```
 
-1. Ensure the suggestion aligns with the simplicity philosophy
-2. Test thoroughly with various URL types
-3. Consider backward compatibility
-4. Keep the natural language interface intuitive
+Manual removal:
+```bash
+rm ~/.local/bin/deasy
+```
+
+Remove the PATH entry from your shell config if desired.
 
 ---
 
 ## License
 
-This project is released into the public domain. Use it however you like.
+Released into the public domain. Use freely.
 
 ---
 
-## Acknowledgments
+## Credits
 
-deasy is a thin wrapper around the excellent [yt-dlp](https://github.com/yt-dlp/yt-dlp) project. All download functionality is provided by yt-dlp.
+Built on top of [yt-dlp](https://github.com/yt-dlp/yt-dlp). All download functionality provided by yt-dlp.
 
 ---
 
 **Version:** 1.0  
-**Last Updated:** January 2026
+**Updated:** January 2026
