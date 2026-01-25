@@ -20,6 +20,81 @@ INSTALL_DIR="$HOME/.local/bin"
 SCRIPT_NAME="deasy"
 BACKUP_SUFFIX=".backup"
 
+# Show help
+show_help() {
+  echo -e "${BOLD}${CYAN}deasy Installer${RESET} - Automated Setup Script"
+  echo
+  echo -e "${BOLD}Usage:${RESET}"
+  echo -e "  ./install.sh [options]"
+  echo
+  echo -e "${BOLD}Options:${RESET}"
+  echo -e "  ${GREEN}-h, --help${RESET}       Show this help message"
+  echo -e "  ${GREEN}-u, --uninstall${RESET}  Uninstall deasy"
+  echo -e "  ${GREEN}--skip-deps${RESET}      Skip dependency checks (yt-dlp, ffmpeg)"
+  echo -e "  ${GREEN}--no-path${RESET}        Don't modify PATH in shell config"
+  echo
+  echo -e "${BOLD}Installation Steps:${RESET}"
+  echo -e "  1. Check and install yt-dlp (required)"
+  echo -e "  2. Check and install ffmpeg (recommended)"
+  echo -e "  3. Install deasy to ~/.local/bin/"
+  echo -e "  4. Add ~/.local/bin/ to your PATH"
+  echo -e "  5. Verify installation"
+  echo
+  echo -e "${BOLD}Quick Start:${RESET}"
+  echo -e "  ${CYAN}chmod +x install.sh${RESET}"
+  echo -e "  ${CYAN}./install.sh${RESET}"
+  echo
+  echo -e "${BOLD}Examples:${RESET}"
+  echo -e "  ${CYAN}./install.sh${RESET}              # Full installation"
+  echo -e "  ${CYAN}./install.sh --skip-deps${RESET}  # Skip dependency checks"
+  echo -e "  ${CYAN}./install.sh --uninstall${RESET}  # Remove deasy"
+  echo
+  exit 0
+}
+
+# Uninstall function
+uninstall_deasy() {
+  echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+  echo -e "${BOLD}${CYAN}  deasy Uninstallation${RESET}"
+  echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+  echo
+  
+  local script_path="$INSTALL_DIR/$SCRIPT_NAME"
+  
+  if [ ! -f "$script_path" ]; then
+    print_error "deasy is not installed at $script_path"
+    exit 1
+  fi
+  
+  echo "This will remove deasy from your system."
+  echo -e "Location: ${CYAN}$script_path${RESET}"
+  echo
+  read -p "Are you sure? [y/N]: " response
+  
+  if [[ "$response" =~ ^[Yy] ]]; then
+    rm -f "$script_path"
+    print_success "deasy has been removed from $INSTALL_DIR"
+    
+    # Restore backup if exists
+    if [ -f "${script_path}${BACKUP_SUFFIX}" ]; then
+      echo
+      read -p "Restore backup? [y/N]: " restore
+      if [[ "$restore" =~ ^[Yy] ]]; then
+        mv "${script_path}${BACKUP_SUFFIX}" "$script_path"
+        print_success "Backup restored"
+      fi
+    fi
+    
+    echo
+    print_info "Note: Shell PATH configuration was not modified."
+    print_info "You can manually remove the PATH entry from your shell config if desired."
+  else
+    print_info "Uninstallation cancelled"
+  fi
+  
+  exit 0
+}
+
 # Helper functions
 print_header() {
   echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
@@ -352,17 +427,58 @@ print_completion() {
 
 # Main installation flow
 main() {
+  # Parse command line arguments
+  local skip_deps=0
+  local no_path=0
+  
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)
+        show_help
+        ;;
+      -u|--uninstall)
+        uninstall_deasy
+        ;;
+      --skip-deps)
+        skip_deps=1
+        shift
+        ;;
+      --no-path)
+        no_path=1
+        shift
+        ;;
+      *)
+        print_error "Unknown option: $1"
+        echo "Use --help for usage information"
+        exit 1
+        ;;
+    esac
+  done
+  
   print_header
   
   # Run installation steps
-  check_ytdlp || exit 1
-  check_ffmpeg
+  if [ $skip_deps -eq 0 ]; then
+    check_ytdlp || exit 1
+    check_ffmpeg
+  else
+    print_warning "Skipping dependency checks"
+    echo
+  fi
+  
   install_deasy || exit 1
-  configure_shell
+  
+  if [ $no_path -eq 0 ]; then
+    configure_shell
+  else
+    print_warning "Skipping PATH configuration"
+    echo
+  fi
+  
   verify_installation
   
   print_completion
 }
 
 # Run main function
-main
+main "$@"
