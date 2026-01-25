@@ -1,8 +1,18 @@
-# deasy
+<p align="center">
+  <img src="assets/deasy.png" alt="deasy logo" width="400"/>
+</p>
 
-**Download Easy - A Simple YouTube Downloader**
+<h3 align="center">Download Easy - A Simple YouTube Downloader</h3>
 
-A straightforward wrapper around yt-dlp that makes downloading videos and audio effortless.
+<p align="center">
+  A straightforward wrapper around yt-dlp that makes downloading videos and audio effortless.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/version-1.0-blue" alt="Version 1.0"/>
+  <img src="https://img.shields.io/badge/license-Public%20Domain-green" alt="License"/>
+  <img src="https://img.shields.io/badge/shell-bash-orange" alt="Shell"/>
+</p>
 
 ---
 
