@@ -340,7 +340,7 @@ Released into the public domain. Use freely.
 
 ## Credits
 
-Built on top of [yt-dlp](https://github.com/yt-dlp/yt-dlp). All download functionality provided by yt-dlp.
+Built on top of **[yt-dlp](https://github.com/yt-dlp/yt-dlp)**. All download functionality provided by yt-dlp.
 
 ---
 
