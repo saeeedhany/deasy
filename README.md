@@ -312,7 +312,7 @@ yt-dlp -r 500K <url>
 yt-dlp -o "%(uploader)s/%(title)s.%(ext)s" <url>
 ```
 
-Refer to yt-dlp documentation for more options: https://github.com/yt-dlp/yt-dlp
+Refer to **[yt-dlp](https://github.com/yt-dlp/yt-dlp)** documentation for more options.
 
 ---
 
