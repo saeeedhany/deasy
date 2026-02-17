@@ -344,5 +344,5 @@ Built on top of **[yt-dlp](https://github.com/yt-dlp/yt-dlp)**. All download fun
 
 ---
 
-**Version:** 1.0  
-**Updated:** January 2026
+**Version:** 1.0.
+**Updated:** January 2026.
